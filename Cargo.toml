@@ -1,0 +1,9 @@
+[workspace]
+members = [
+  "crates/cli", "crates/core", "crates/git", "crates/llm",
+]
+resolver = "3"
+
+[workspace.package]
+version = "0.1.0"
+authors = ["ZyraX <oscarcoll.930714@gmail.com>"]
