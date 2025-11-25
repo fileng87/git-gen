@@ -90,8 +90,8 @@ jobs:
 
       - uses: softprops/action-gh-release@v2
         with:
+          token: ${{ secrets.GITHUB_TOKEN }}
           tag_name: ${{ github.ref }}
-          name: v${{ steps.version.outputs.VERSION }}
           body: |
             ## Installation
 
@@ -105,6 +105,3 @@ jobs:
 
             Then use as: `git gen commit --apply`
           files: release/*
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
