@@ -40,7 +40,7 @@ impl GitRepository for GitRepositoryImpl {
         tokio::task::spawn_blocking(move || {
             // Get staged diff using git diff --cached
             let output = Command::new("git")
-                .args(&["diff", "--cached"])
+                .args(["diff", "--cached"])
                 .current_dir(&repo_path)
                 .output()
                 .context("Failed to execute git diff. Make sure git is installed and in PATH")?;
@@ -74,7 +74,7 @@ impl GitRepository for GitRepositoryImpl {
             // First check if there are staged changes
             // git diff --cached --quiet returns exit code 0 if no changes, 1 if there are changes
             let diff_output = Command::new("git")
-                .args(&["diff", "--cached", "--quiet"])
+                .args(["diff", "--cached", "--quiet"])
                 .current_dir(&repo_path)
                 .output()
                 .context("Failed to execute git diff. Make sure git is installed and in PATH")?;
@@ -86,7 +86,7 @@ impl GitRepository for GitRepositoryImpl {
 
             // Check git user config before committing
             let name_output = Command::new("git")
-                .args(&["config", "user.name"])
+                .args(["config", "user.name"])
                 .current_dir(&repo_path)
                 .output()
                 .context("Failed to check git user.name")?;
@@ -96,7 +96,7 @@ impl GitRepository for GitRepositoryImpl {
             }
 
             let email_output = Command::new("git")
-                .args(&["config", "user.email"])
+                .args(["config", "user.email"])
                 .current_dir(&repo_path)
                 .output()
                 .context("Failed to check git user.email")?;
@@ -107,7 +107,7 @@ impl GitRepository for GitRepositoryImpl {
 
             // Execute git commit
             let output = Command::new("git")
-                .args(&["commit", "-m", &message])
+                .args(["commit", "-m", &message])
                 .current_dir(&repo_path)
                 .output()
                 .context("Failed to execute git commit. Make sure git is installed and in PATH")?;
