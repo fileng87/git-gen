@@ -91,17 +91,4 @@ jobs:
       - uses: softprops/action-gh-release@v2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          tag_name: ${{ github.ref }}
-          body: |
-            ## Installation
-
-            Download `git-gen-{platform}` for your system, rename to `git-gen`, and add to PATH.
-
-            ```bash
-            mv git-gen-linux-x86_64 git-gen
-            chmod +x git-gen
-            sudo mv git-gen /usr/local/bin/
-            ```
-
-            Then use as: `git gen commit --apply`
           files: release/*
