@@ -3,44 +3,36 @@ name: Release
 on:
   push:
     tags:
-      - 'v*'  # Trigger on version tags like v1.0.0, v0.1.0, etc.
+      - 'v*'
 
 jobs:
-  release:
-    name: Build and Release
+  build:
+    name: Build ${{ matrix.platform }}
     runs-on: ${{ matrix.os }}
     strategy:
-      fail-fast: false
       matrix:
         include:
           - os: ubuntu-latest
             target: x86_64-unknown-linux-gnu
-            artifact_name: git-gen-x86_64-unknown-linux-gnu
-            asset_name: git-gen-linux-x86_64
+            platform: linux-x86_64
           - os: windows-latest
             target: x86_64-pc-windows-msvc
-            artifact_name: git-gen-x86_64-pc-windows-msvc
-            asset_name: git-gen-windows-x86_64.exe
+            platform: windows-x86_64
           - os: macos-latest
             target: x86_64-apple-darwin
-            artifact_name: git-gen-x86_64-apple-darwin
-            asset_name: git-gen-macos-x86_64
+            platform: macos-x86_64
           - os: macos-latest
             target: aarch64-apple-darwin
-            artifact_name: git-gen-aarch64-apple-darwin
-            asset_name: git-gen-macos-arm64
+            platform: macos-arm64
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@stable
+      - uses: dtolnay/rust-toolchain@stable
         with:
           targets: ${{ matrix.target }}
 
-      - name: Cache cargo dependencies
-        uses: actions/cache@v4
+      - uses: actions/cache@v4
         with:
           path: |
             ~/.cargo/bin/
@@ -48,93 +40,71 @@ jobs:
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
             target/
-          key: ${{ runner.os }}-${{ matrix.target }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-${{ matrix.target }}-cargo-
+          key: ${{ runner.os }}-${{ matrix.target }}-${{ hashFiles('**/Cargo.lock') }}
 
-      - name: Build release binary
-        run: cargo build --release --target ${{ matrix.target }} --bin git-gen-cli
-        env:
-          CARGO_BUILD_TARGET: ${{ matrix.target }}
+      - run: cargo build --release --target ${{ matrix.target }} --bin git-gen
 
-      - name: Prepare artifact
+      - name: Prepare binary
         shell: bash
         run: |
-          mkdir -p release
-          if [ "${{ runner.os }}" == "Windows" ]; then
-            cp target/${{ matrix.target }}/release/git-gen-cli.exe release/${{ matrix.asset_name }}
+          if [ "${{ matrix.os }}" == "windows-latest" ]; then
+            cp target/${{ matrix.target }}/release/git-gen.exe git-gen-${{ matrix.platform }}.exe
           else
-            cp target/${{ matrix.target }}/release/git-gen-cli release/${{ matrix.asset_name }}
-            chmod +x release/${{ matrix.asset_name }}
+            cp target/${{ matrix.target }}/release/git-gen git-gen-${{ matrix.platform }}
+            chmod +x git-gen-${{ matrix.platform }}
           fi
 
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.artifact_name }}
-          path: release/${{ matrix.asset_name }}
-          retention-days: 30
+          name: git-gen-${{ matrix.platform }}
+          path: git-gen-${{ matrix.platform }}*
 
-  create-release:
-    name: Create GitHub Release
-    needs: release
+  release:
+    name: Create Release
+    needs: build
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/v')
     permissions:
       contents: write
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+      - uses: actions/checkout@v4
 
-      - name: Get version from tag
-        id: tag
+      - name: Get version
+        id: version
         run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
 
-      - name: Download all artifacts
-        uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v4
         with:
           path: artifacts
 
-      - name: Prepare release assets
+      - name: Prepare assets
         shell: bash
         run: |
-          mkdir -p release-assets
-          # Copy all artifacts to release-assets directory
-          find artifacts -type f -exec cp {} release-assets/ \;
-          # Make binaries executable (except .exe files)
-          find release-assets -type f ! -name "*.exe" ! -name "*.sha256" -exec chmod +x {} \;
-
-      - name: Generate checksums
-        shell: bash
-        working-directory: release-assets
-        run: |
-          for file in *; do
+          mkdir -p release
+          find artifacts -type f -exec cp {} release/ \;
+          cd release
+          find . -name "git-gen-*" ! -name "*.exe" -exec chmod +x {} \;
+          for file in git-gen-*; do
             sha256sum "$file" > "$file.sha256"
           done
 
-      - name: Create Release
-        uses: softprops/action-gh-release@v1
+      - uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ github.ref }}
-          name: Release v${{ steps.tag.outputs.VERSION }}
+          name: v${{ steps.version.outputs.VERSION }}
           body: |
-            ## Changes in v${{ steps.tag.outputs.VERSION }}
-
-            See [CHANGELOG.md](CHANGELOG.md) for details.
-
             ## Installation
 
-            Download the binary for your platform and place it in your PATH.
+            Download `git-gen-{platform}` for your system, rename to `git-gen`, and add to PATH.
 
-            ### Checksums
+            ```bash
+            mv git-gen-linux-x86_64 git-gen
+            chmod +x git-gen
+            sudo mv git-gen /usr/local/bin/
+            ```
 
-            SHA256 checksums are provided for verification.
-          files: release-assets/*
-          draft: false
-          prerelease: ${{ contains(github.ref, '-') }}
+            Then use as: `git gen commit --apply`
+          files: release/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
