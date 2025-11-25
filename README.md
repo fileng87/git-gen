@@ -185,32 +185,6 @@ git-gen/
 - Rust 1.70+
 - Git
 
-### Running Tests
-
-```bash
-cargo test --all
-```
-
-### Code Quality
-
-```bash
-# Format code
-cargo fmt --all
-
-# Lint check
-cargo clippy --all -- -D warnings
-```
-
-### Building
-
-```bash
-# Debug build
-cargo build
-
-# Release build
-cargo build --release
-```
-
 ## Contributing
 
 Issues and Pull Requests are welcome!
