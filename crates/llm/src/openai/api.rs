@@ -1,6 +1,6 @@
 use super::config::OpenAIConfig;
 use super::types::{ChatMessage, ChatRequest, ChatResponse};
-use crate::common::{truncate_diff, validate_commit_message, handle_api_error, TEMPERATURE};
+use crate::common::{TEMPERATURE, handle_api_error, truncate_diff, validate_commit_message};
 use anyhow::anyhow;
 
 const OPENAI_API_URL: &str = "https://api.openai.com/v1/chat/completions";
@@ -54,4 +54,3 @@ pub async fn generate_commit_message(
 
     validate_commit_message(message, "OpenAI")
 }
-

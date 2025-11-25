@@ -51,4 +51,3 @@ mod tests {
         assert!(prompt.contains("commit message"));
     }
 }
-

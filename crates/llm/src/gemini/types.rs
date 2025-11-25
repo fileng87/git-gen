@@ -54,4 +54,3 @@ pub struct ErrorDetail {
     pub message: String,
     pub status: String,
 }
-

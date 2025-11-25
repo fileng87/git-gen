@@ -1,4 +1,4 @@
-use anyhow::{anyhow, Context, Result};
+use anyhow::{Context, Result, anyhow};
 use serde::{Deserialize, Serialize};
 use std::env;
 use std::fs;
@@ -42,7 +42,11 @@ impl AppConfig {
                 match Self::load_from_file(&config_path) {
                     Ok(config) => return Ok(config),
                     Err(e) => {
-                        eprintln!("Warning: Failed to load config from {}: {}", config_path.display(), e);
+                        eprintln!(
+                            "Warning: Failed to load config from {}: {}",
+                            config_path.display(),
+                            e
+                        );
                         // Fall through to create new config
                     }
                 }
@@ -75,8 +79,9 @@ impl AppConfig {
     fn create_config_file(config_path: &Path) -> Result<Self> {
         // Create parent directory if it doesn't exist
         if let Some(parent) = config_path.parent() {
-            fs::create_dir_all(parent)
-                .with_context(|| format!("Failed to create config directory: {}", parent.display()))?;
+            fs::create_dir_all(parent).with_context(|| {
+                format!("Failed to create config directory: {}", parent.display())
+            })?;
         }
 
         // Try to create config from environment variables first
@@ -99,8 +104,8 @@ impl AppConfig {
         };
 
         // Write config to file
-        let toml_content = toml::to_string_pretty(&config)
-            .context("Failed to serialize config to TOML")?;
+        let toml_content =
+            toml::to_string_pretty(&config).context("Failed to serialize config to TOML")?;
 
         fs::write(config_path, toml_content)
             .with_context(|| format!("Failed to write config file: {}", config_path.display()))?;
@@ -127,7 +132,9 @@ impl AppConfig {
         if has_placeholder {
             println!();
             println!("⚠️  Configuration file created with example values.");
-            println!("   Please edit the config file and replace 'your-api-key-here' with your actual API keys:");
+            println!(
+                "   Please edit the config file and replace 'your-api-key-here' with your actual API keys:"
+            );
             println!("   {}", config_path.display());
             println!();
             println!("   Alternatively, you can set environment variables:");
@@ -143,8 +150,8 @@ impl AppConfig {
         let content = fs::read_to_string(path)
             .with_context(|| format!("Failed to read config file: {}", path.display()))?;
 
-        let config: AppConfig = toml::from_str(&content)
-            .context("Failed to parse config file as TOML")?;
+        let config: AppConfig =
+            toml::from_str(&content).context("Failed to parse config file as TOML")?;
 
         Ok(config)
     }

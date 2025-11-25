@@ -13,4 +13,3 @@ impl GeminiConfig {
         Self { api_key, model }
     }
 }
-

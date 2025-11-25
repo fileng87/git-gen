@@ -3,7 +3,7 @@ use super::types::{
     Content, GenerateContentRequest, GenerateContentResponse, GenerationConfig, Part,
     SystemInstruction,
 };
-use crate::common::{truncate_diff, validate_commit_message, handle_api_error, TEMPERATURE};
+use crate::common::{TEMPERATURE, handle_api_error, truncate_diff, validate_commit_message};
 use anyhow::anyhow;
 
 const GEMINI_API_BASE_URL: &str = "https://generativelanguage.googleapis.com/v1beta";
@@ -62,4 +62,3 @@ pub async fn generate_commit_message(
 
     validate_commit_message(message, "Gemini")
 }
-

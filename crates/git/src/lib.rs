@@ -1,8 +1,8 @@
+use anyhow::{Context, anyhow};
 use async_trait::async_trait;
 use git_gen_core::GitRepository;
 use std::path::{Path, PathBuf};
 use std::process::Command;
-use anyhow::{anyhow, Context};
 
 /// Implementation of GitRepository using system git command
 pub struct GitRepositoryImpl {

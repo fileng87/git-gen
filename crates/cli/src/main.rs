@@ -1,6 +1,6 @@
+mod commands;
 mod config;
 mod llm_provider;
-mod commands;
 
 use config::AppConfig;
 
@@ -11,7 +11,7 @@ use commands::commit;
 #[command(
     name = "git-gen",
     author = "ZyraX <oscarcoll.930714@gmail.com>",
-    version = "0.1.0",
+    version = env!("CARGO_PKG_VERSION"),
     about = "Generate git commit messages using AI",
     long_about = None
 )]

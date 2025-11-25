@@ -13,4 +13,3 @@ impl OpenAIConfig {
         Self { api_key, model }
     }
 }
-

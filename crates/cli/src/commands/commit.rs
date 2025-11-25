@@ -5,8 +5,11 @@ use git_gen_git::GitRepositoryImpl;
 use crate::config::AppConfig;
 use crate::llm_provider::LlmProvider;
 
-pub async fn run(provider: Option<LlmProvider>, apply: bool, config: AppConfig) -> anyhow::Result<()> {
-
+pub async fn run(
+    provider: Option<LlmProvider>,
+    apply: bool,
+    config: AppConfig,
+) -> anyhow::Result<()> {
     // Determine LLM provider
     let provider = match provider {
         Some(p) => {
@@ -31,7 +34,8 @@ pub async fn run(provider: Option<LlmProvider>, apply: bool, config: AppConfig) 
     };
 
     // Create LLM generater from config
-    let llm_generater: Box<dyn LlmGenerater> = provider.create_llm_generater_from_config(&config)?;
+    let llm_generater: Box<dyn LlmGenerater> =
+        provider.create_llm_generater_from_config(&config)?;
 
     // Create git repository
     let git_repository: Box<dyn GitRepository> = Box::new(GitRepositoryImpl::new());

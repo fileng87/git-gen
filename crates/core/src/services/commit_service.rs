@@ -1,7 +1,7 @@
 use async_trait::async_trait;
 
-use crate::interfaces::llm_generater::LlmGenerater;
 use crate::interfaces::git_repository::GitRepository;
+use crate::interfaces::llm_generater::LlmGenerater;
 
 #[async_trait]
 pub trait CommitService {

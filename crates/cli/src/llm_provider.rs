@@ -41,10 +41,9 @@ impl LlmProvider {
     ) -> anyhow::Result<Box<dyn LlmGenerater>> {
         match self {
             Self::OpenAI => {
-                let openai_config = config
-                    .openai
-                    .as_ref()
-                    .ok_or_else(|| anyhow!("OpenAI is not configured in config file or environment"))?;
+                let openai_config = config.openai.as_ref().ok_or_else(|| {
+                    anyhow!("OpenAI is not configured in config file or environment")
+                })?;
 
                 let llm = OpenAILlmGenerater::with_config(
                     openai_config.api_key.clone(),
@@ -53,10 +52,9 @@ impl LlmProvider {
                 Ok(Box::new(llm))
             }
             Self::Gemini => {
-                let gemini_config = config
-                    .gemini
-                    .as_ref()
-                    .ok_or_else(|| anyhow!("Gemini is not configured in config file or environment"))?;
+                let gemini_config = config.gemini.as_ref().ok_or_else(|| {
+                    anyhow!("Gemini is not configured in config file or environment")
+                })?;
 
                 let llm = GeminiLlmGenerater::with_config(
                     gemini_config.api_key.clone(),

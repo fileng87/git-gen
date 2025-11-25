@@ -22,4 +22,3 @@ pub struct ChatResponse {
 pub struct Choice {
     pub message: ChatMessage,
 }
-

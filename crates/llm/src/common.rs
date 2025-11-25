@@ -18,7 +18,10 @@ pub fn validate_commit_message(message: String, provider_name: &str) -> anyhow::
     let message = message.trim().to_string();
 
     if message.is_empty() {
-        return Err(anyhow::anyhow!("Empty commit message from {} API", provider_name));
+        return Err(anyhow::anyhow!(
+            "Empty commit message from {} API",
+            provider_name
+        ));
     }
 
     Ok(message)
@@ -42,4 +45,3 @@ pub async fn handle_api_error(
         error_text
     ))
 }
-
