@@ -192,12 +192,3 @@ Issues and Pull Requests are welcome!
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-
-## Author
-
-ZyraX <oscarcoll.930714@gmail.com>
-
-## Links
-
-- [GitHub Repository](https://github.com/fileng87/git-gen)
-- [Issues](https://github.com/fileng87/git-gen/issues)
