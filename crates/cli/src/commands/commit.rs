@@ -1,6 +1,7 @@
 use anyhow::anyhow;
 use git_gen_core::{CommitService, CommitServiceImpl, GitRepository, LlmGenerater};
 use git_gen_git::GitRepositoryImpl;
+use std::io::{self, Write};
 
 use crate::config::AppConfig;
 use crate::llm_provider::LlmProvider;
@@ -43,17 +44,40 @@ pub async fn run(
     // Create commit service
     let commit_service = CommitServiceImpl::new(llm_generater, git_repository);
 
-    // Generate and optionally apply commit
-    match commit_service.commit(apply).await {
-        Ok(message) => {
-            println!("{}", message);
-            if apply {
-                println!("✓ Commit applied successfully");
-            } else {
-                println!("ℹ Use --apply to commit the changes");
+    // Generate commit message first (without applying)
+    let message = match commit_service.commit(false).await {
+        Ok(msg) => msg,
+        Err(e) => return Err(anyhow!("Failed to generate commit message: {}", e)),
+    };
+
+    // Display the generated commit message
+    println!("{}", message);
+
+    // If apply is requested, ask for confirmation
+    if apply {
+        print!("Apply this commit? [Y/n]: ");
+        io::stdout().flush()?;
+
+        let mut input = String::new();
+        io::stdin().read_line(&mut input)?;
+        let input = input.trim().to_lowercase();
+
+        // Only proceed if user confirms with Y, y, or empty (default to yes)
+        if input.is_empty() || input == "y" || input == "yes" {
+            // Apply the commit through commit service
+            match commit_service.apply_commit(&message).await {
+                Ok(_) => {
+                    println!("✓ Commit applied successfully");
+                    Ok(())
+                }
+                Err(e) => Err(anyhow!("Failed to apply commit: {}", e)),
             }
+        } else {
+            println!("ℹ Commit cancelled");
             Ok(())
         }
-        Err(e) => Err(anyhow!("Failed to generate commit message: {}", e)),
+    } else {
+        println!("ℹ Use --apply to commit the changes");
+        Ok(())
     }
 }

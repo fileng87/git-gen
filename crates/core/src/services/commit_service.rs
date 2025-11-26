@@ -7,6 +7,9 @@ use crate::interfaces::llm_generater::LlmGenerater;
 pub trait CommitService {
     /// Generate and optionally apply commit message
     async fn commit(&self, apply: bool) -> anyhow::Result<String>;
+
+    /// Apply a commit with the given message
+    async fn apply_commit(&self, message: &str) -> anyhow::Result<()>;
 }
 
 pub struct CommitServiceImpl {
@@ -47,5 +50,9 @@ impl CommitService for CommitServiceImpl {
         }
 
         Ok(message)
+    }
+
+    async fn apply_commit(&self, message: &str) -> anyhow::Result<()> {
+        self.git_repository.commit(message).await
     }
 }
